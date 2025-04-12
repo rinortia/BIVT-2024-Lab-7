@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lab_6
+namespace Lab_7
 {
     public class Blue_2
     {
@@ -22,7 +22,8 @@ namespace Lab_6
             {
                 get
                 {
-                    if (_marks == null) { return null; }
+                    if (_marks == null || _marks.GetLength(0) == 0 || _marks.GetLength(1) == 0) return null;
+
                     int[,] copy = new int[_marks.GetLength(0), _marks.GetLength(1)];
 
                     for (int i = 0; i < _marks.GetLength(0); i++)
@@ -35,12 +36,12 @@ namespace Lab_6
 
                     return copy;
                 }
-            }   
+            }
             public int TotalScore //если есть только геттер, то свойство только для чтения
             {
                 get //возвращает вычисленное значение
                 {
-                    if (_marks == null) return 0;
+                    if (_marks == null || _marks.GetLength(0) == 0 || _marks.GetLength(1) == 0) return 0;
                     int total = 0;
                     for (int i = 0; i < 2; i++)
                     {
@@ -55,11 +56,11 @@ namespace Lab_6
 
             //конструктор
             public Participant(string name, string surname)
-            {                
+            {
                 _name = name;
                 _surname = surname;
                 _marks = new int[2, 5];
-                _counterJump = 0;
+                _counterJump = -1;
             }
 
             //методы
@@ -67,7 +68,7 @@ namespace Lab_6
             {
                 if (result == null || _marks == null || _counterJump >= 2) { return; }
 
-                for (int j = 0; j < 5; j++) 
+                for (int j = 0; j < 5; j++)
                 {
                     _marks[_counterJump, j] = result[j];
                 }
@@ -75,7 +76,7 @@ namespace Lab_6
             }
             public static void Sort(Participant[] array)
             {
-                if (array == null) { return; }
+                if (array == null || array.Length <= 1) return;
                 for (int i = 0; i < array.Length - 1; i++)
                 {
                     for (int j = 0; j < array.Length - 1 - i; j++)
@@ -107,11 +108,10 @@ namespace Lab_6
             }
         }
         public abstract class WaterJump
-        {            
-            private string _name; 
-            private int _bank; 
+        {
+            private string _name;
+            private int _bank;
             private Participant[] _participants;
-            private int _participantCount;
 
             public string Name => _name;
             public int Bank => _bank;
@@ -123,103 +123,92 @@ namespace Lab_6
             {
                 _name = name;
                 _bank = bank;
-                _participants = new Participant[0]; 
-                _participantCount = 0;
+                _participants = new Participant[0];
             }
 
             public void Add(Participant participant)
-            {            
-                    Array.Resize(ref _participants, _participantCount + 1);
-                    _participants[_participantCount] = participant;
-                    _participantCount++;
-                
-            }            
-            public void Add(params Participant[] participants)
             {
-                if (participants != null)
+                if (_participants == null) return;
+                Participant[] new_arr = new Participant[_participants.Length + 1];
+                for (int i = 0; i < _participants.Length; i++)
+                {
+                    new_arr[i] = _participants[i];
+                }
+                new_arr[_participants.Length] = participant;
+                _participants = new_arr;
+
+            }
+            public void Add(Participant[] participants)
+            {
+                if (participants != null || participants.Length != 0)
                 {
                     foreach (var participant in participants)
                     {
-                        Add(participant); 
+                        Add(participant);
                     }
                 }
             }
 
-            public void SortParticipants()
+
+            public class WaterJump3m : WaterJump
             {
-                Participant.Sort(_participants.ToArray());
-            }
-                       
-            public void Print()
-            {
-                Console.WriteLine($"Турнир: {Name}");
-                Console.WriteLine($"Призовой фонд: {Bank}");
-                Console.WriteLine("Участники:");
-                foreach (var participant in _participants)
+                public WaterJump3m(string name, int bank) : base(name, bank) { }
+
+                public override double[] Prize
                 {
-                    participant.Print();
+                    get
+                    {
+                        if (Participants.Length <= 3 || this.Participants == null)
+                        {
+                            return new double[0];
+                        }
+                        double[] prizes = new double[3];
+                        prizes[0] = Bank * 0.5;
+                        prizes[1] = Bank * 0.3;
+                        prizes[2] = Bank * 0.2;
+
+                        return prizes;
+                    }
+                }
+            }
+
+
+            public class WaterJump5m : WaterJump
+            {
+
+                public WaterJump5m(string name, int bank) : base(name, bank) { }
+
+                public override double[] Prize
+                {
+                    get
+                    {
+                        if (this.Participants == null || this.Participants.Length < 3)
+                            return default(double[]);
+
+                        int counter = Math.Min(
+                            this.Participants.Length / 2,
+                            10
+                        );
+
+                        double[] reward = new double[counter];
+                        double baseShare = 20.0 / counter;
+
+                        for (int i = 0; i < counter; i++)
+                        {
+                            reward[i] = this.Bank * (baseShare / 100);
+                        }
+
+                        reward[0] += this.Bank * 0.40;
+                        reward[1] += this.Bank * 0.25;
+                        reward[2] += this.Bank * 0.15;
+
+                        return reward;
+                    }
+
                 }
             }
         }
-
-        
-        public class WaterJump3m : WaterJump
-        {
-            public WaterJump3m(string name, int bank) : base(name, bank) { }
-
-            public override double[] Prize
-            {
-                get
-                {
-                    if (Participants.Length < 3)
-                    {
-                        return new double[0]; // Если участников меньше 3, призовые не распределяются
-                    }
-
-                    double[] prizes = new double[3];
-                    prizes[0] = Bank * 0.5; // 50% за первое место
-                    prizes[1] = Bank * 0.3; // 30% за второе место
-                    prizes[2] = Bank * 0.2; // 20% за третье место
-
-                    return prizes;
-                }
-            }
-        }
-
-        
-        public class WaterJump5m : WaterJump
-        {
-            
-            public WaterJump5m(string name, int bank) : base(name, bank) { }
-                       
-            public override double[] Prize
-            {
-                get
-                {
-                    if (Participants.Length < 3)
-                    {
-                        return new double[0]; // Если участников меньше 3, призовые не распределяются
-                    }
-
-                    int topCount = Math.Min(Math.Max(Participants.Length / 2, 3), 10); // Количество участников выше середины
-                    double[] prizes = new double[topCount + 3]; // Призовые для топ-участников и первых трех мест
-
-                    // Распределение призовых для топ-участников
-                    double topPrize = Bank * 0.2 / topCount; // 20% фонда делим на количество топ-участников
-                    for (int i = 0; i < topCount; i++)
-                    {
-                        prizes[i] = topPrize;
-                    }
-
-                    // Распределение призовых для первых трех мест
-                    prizes[topCount] = Bank * 0.4; // 40% за первое место
-                    prizes[topCount + 1] = Bank * 0.25; // 25% за второе место
-                    prizes[topCount + 2] = Bank * 0.15; // 15% за третье место
-
-                    return prizes;
-                }
-            }
-        }
-
     }
-}    
+}
+
+    
