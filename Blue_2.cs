@@ -60,7 +60,7 @@ namespace Lab_7
                 _name = name;
                 _surname = surname;
                 _marks = new int[2, 5];
-                _counterJump = -1;
+                _counterJump = 0;
             }
 
             //методы
@@ -129,13 +129,8 @@ namespace Lab_7
             public void Add(Participant participant)
             {
                 if (_participants == null) return;
-                Participant[] new_arr = new Participant[_participants.Length + 1];
-                for (int i = 0; i < _participants.Length; i++)
-                {
-                    new_arr[i] = _participants[i];
-                }
-                new_arr[_participants.Length] = participant;
-                _participants = new_arr;
+                Array.Resize(ref _participants, _participants.Length + 1);
+                _participants[_participants.Length - 1] = participant;
 
             }
             public void Add(Participant[] participants)
@@ -148,67 +143,72 @@ namespace Lab_7
                     }
                 }
             }
+        }
 
+        public class WaterJump3m : WaterJump
+        {
+            public WaterJump3m(string name, int bank) : base(name, bank) { }
 
-            public class WaterJump3m : WaterJump
+            public override double[] Prize
             {
-                public WaterJump3m(string name, int bank) : base(name, bank) { }
-
-                public override double[] Prize
+                get
                 {
-                    get
+                    if (Participants.Length <= 3 || this.Participants == null)
                     {
-                        if (Participants.Length <= 3 || this.Participants == null)
-                        {
-                            return new double[0];
-                        }
-                        double[] prizes = new double[3];
-                        prizes[0] = Bank * 0.5;
-                        prizes[1] = Bank * 0.3;
-                        prizes[2] = Bank * 0.2;
-
-                        return prizes;
+                        return new double[0];
                     }
+                    double[] prizes = new double[3];
+                    prizes[0] = Bank * 0.5;
+                    prizes[1] = Bank * 0.3;
+                    prizes[2] = Bank * 0.2;
+
+                    return prizes;
                 }
             }
+        }
 
+        public class WaterJump5m : WaterJump
+        {
 
-            public class WaterJump5m : WaterJump
+            public WaterJump5m(string name, int bank) : base(name, bank) { }
+
+            public override double[] Prize
             {
-
-                public WaterJump5m(string name, int bank) : base(name, bank) { }
-
-                public override double[] Prize
+                get
                 {
-                    get
+                    if (Participants == null || Participants.Length < 3)
                     {
-                        if (this.Participants == null || this.Participants.Length < 3)
-                            return default(double[]);
-
-                        int counter = Math.Min(
-                            this.Participants.Length / 2,
-                            10
-                        );
-
-                        double[] reward = new double[counter];
-                        double baseShare = 20.0 / counter;
-
-                        for (int i = 0; i < counter; i++)
-                        {
-                            reward[i] = this.Bank * (baseShare / 100);
-                        }
-
-                        reward[0] += this.Bank * 0.40;
-                        reward[1] += this.Bank * 0.25;
-                        reward[2] += this.Bank * 0.15;
-
-                        return reward;
+                        return new double[0];
                     }
+
+                    var sortedParticipants = Participants.OrderByDescending(p => p.TotalScore).ToArray();
+
+                    int halfCount = sortedParticipants.Length / 2;
+                    int prizeCount = Math.Max(3, Math.Min(halfCount, 10));
+
+                    double[] rewards = new double[prizeCount];
+
+                    double baseReward = Bank * 0.20 / prizeCount;
+                    for (int i = 0; i < prizeCount; i++)
+                    {
+                        rewards[i] = baseReward;
+                    }
+
+                    if (prizeCount > 0) rewards[0] += Bank * 0.40;
+                    if (prizeCount > 1) rewards[1] += Bank * 0.25;
+                    if (prizeCount > 2) rewards[2] += Bank * 0.15;
+
+                    return rewards;
 
                 }
             }
         }
+
+
     }
 }
 
-    
+
+
+
+
