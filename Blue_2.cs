@@ -101,45 +101,47 @@ namespace Lab_7
             {
                 Console.WriteLine($"Участник {_name} {_surname} - {TotalScore} ");
             }
-            public abstract class WaterJump
+        }
+        public abstract class WaterJump
+        {
+            private string _name;
+            private int _bank;
+            private Participant[] _participants;
+
+            public string Name => _name;
+            public int Bank => _bank;
+            public Participant[] Participants => _participants;
+
+            public abstract double[] Prize { get; }
+
+            public WaterJump(string name, int bank)
             {
-                private string _name;
-                private int _bank;
-                private Participant[] _participants;
+                _name = name;
+                _bank = bank;
+                _participants = new Participant[0];
+            }
 
-                public string Name => _name;
-                public int Bank => _bank;
-                public Participant[] Participants => _participants;
+            public void Add(Participant participant)
+            {
+                if (_participants == null) return;
+                Array.Resize(ref _participants, _participants.Length + 1);
+                _participants[_participants.Length - 1] = participant;
 
-                public abstract double[] Prize { get; }
-
-                public WaterJump(string name, int bank)
+            }
+            public void Add(Participant[] participants)
+            {
+                if (participants != null || participants.Length != 0)
                 {
-                    _name = name;
-                    _bank = bank;
-                    _participants = new Participant[0];
-                }
-
-                public void Add(Participant participant)
-                {
-                    if (_participants == null) return;
-                    Array.Resize(ref _participants, _participants.Length + 1);
-                    _participants[_participants.Length - 1] = participant;
-
-                }
-                public void Add(Participant[] participants)
-                {
-                    if (participants != null || participants.Length != 0)
+                    foreach (var participant in participants)
                     {
-                        foreach (var participant in participants)
-                        {
-                            Add(participant);
-                        }
+                        Add(participant);
                     }
                 }
             }
+        }
 
-            public class WaterJump3m : WaterJump
+
+        public class WaterJump3m : WaterJump
             {
                 public WaterJump3m(string name, int bank) : base(name, bank) { }
 
@@ -161,7 +163,7 @@ namespace Lab_7
                 }
             }
 
-            public class WaterJump5m : WaterJump
+        public class WaterJump5m : WaterJump
             {
 
                 public WaterJump5m(string name, int bank) : base(name, bank) { }
@@ -199,7 +201,7 @@ namespace Lab_7
 
         }
     }
-}
+
 
 
 
