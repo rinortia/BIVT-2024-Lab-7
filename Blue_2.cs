@@ -170,33 +170,41 @@ namespace Lab_7
 
                 public override double[] Prize
                 {
-                    get
+                get
+                {
+                    if (this.Participants.Length < 3 || this.Participants == null)
                     {
-                        if (this.Participants == null || this.Participants.Length < 3)
-                        {
-                            return new double[0];
-                        }
-
-                        double[] rewards = new double[Math.Min(this.Participants.Length, 10)];
-                        rewards[0] = 0.40 * Bank;
-                        rewards[1] = 0.25 * Bank;
-                        rewards[2] = 0.15 * Bank;
-
-                        int halfCount = this.Participants.Length / 2;
-                        int topCount = Math.Min(Math.Max(halfCount, 3), 10);
-
-                        double percent_n = 20.0 / topCount;
-
-                        for (int i = 3; i < topCount; i++)
-                        {
-                            rewards[i] = Bank * percent_n / 100;
-                        }
-
-                        return rewards;
-
+                        return new double[0];
                     }
+
+                    double[] reward;
+                    int count;
+                    
+                    if (Participants.Length / 2 < 10)
+                    {
+                        reward = new double[Participants.Length / 2];
+                        count = Participants.Length / 2;
+                    }
+                    else
+                    {
+                        reward = new double[10];
+                        count = 10;
+                    }
+                    double share = 20.0 / count;
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        reward[i] = this.Bank * (share / 100);
+                    }
+
+                    reward[0] += 0.4 * this.Bank;
+                    reward[1] +=  0.25 * this.Bank;
+                    reward[2] += 0.15 * this.Bank;
+
+                    return reward;
                 }
             }
+    }
 
 
         }
