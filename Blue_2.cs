@@ -111,7 +111,6 @@ namespace Lab_7
             public string Name => _name;
             public int Bank => _bank;
             public Participant[] Participants => _participants;
-
             public abstract double[] Prize { get; }
 
             public WaterJump(string name, int bank)
@@ -130,12 +129,10 @@ namespace Lab_7
             }
             public void Add(Participant[] participants)
             {
-                if (participants != null || participants.Length != 0)
+                if (_participants == null || participants == null || participants.Length == 0) return;
+                foreach (Participant participant in participants)
                 {
-                    foreach (var participant in participants)
-                    {
-                        Add(participant);
-                    }
+                    Add(participant);
                 }
             }
         }
@@ -149,9 +146,9 @@ namespace Lab_7
                 {
                     get
                     {
-                        if (this.Participants.Length <= 3 || this.Participants == null)
+                        if (this.Participants == null || this.Participants.Length <= 3)
                         {
-                            return new double[0];
+                            return null;
                         }
                         double[] prizes = new double[3];
                         prizes[0] = this.Bank * 0.5;
@@ -172,9 +169,9 @@ namespace Lab_7
                 {
                 get
                 {
-                    if (this.Participants.Length < 3 || this.Participants == null)
+                    if (this.Participants == null || this.Participants.Length < 3)
                     {
-                        return new double[0];
+                        return null;
                     }
 
                     double[] reward;
